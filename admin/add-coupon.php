@@ -5,7 +5,6 @@ include('auth.php');
 
 $message = "";
 
-// Fetch all stores for dropdown
 $storeResult = $conn->query("SELECT id, name FROM stores");
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -48,153 +47,177 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html>
 <head>
     <title>Add Coupon</title>
+    <link rel="stylesheet" href="../assets/style.css">
     <style>
-        /* Reset and base */
         body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          background: #f5f7fa;
-          margin: 0;
-          padding: 0;
-          color: #333;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(120deg, #f4f6f9, #dbe9f4);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .admin-dashboard {
-          max-width: 600px;
-          background: #fff;
-          margin: 60px auto;
-          padding: 30px 40px;
-          border-radius: 12px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        .sidebar {
+            width: 240px;
+            background: #0077cc;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            color: #fff;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
         }
 
-        .admin-dashboard h2 {
-          color: #0077cc;
-          text-align: center;
-          margin-bottom: 30px;
-          font-weight: 700;
+        .sidebar h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #fff;
         }
 
-        .message-success {
-          background-color: #e8f5e9;
-          color: #2e7d32;
-          padding: 15px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          font-weight: 600;
-          text-align: center;
-          box-shadow: 0 2px 6px rgba(46,125,50,0.2);
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease-in-out;
         }
 
-        .admin-form label {
-          display: block;
-          font-weight: 600;
-          margin-bottom: 6px;
-          margin-top: 18px;
-          color: #444;
+        .sidebar a:hover {
+            background: #fff;
+            color: #0077cc;
+            transform: scale(1.05);
         }
 
-        .admin-form input[type="text"],
-        .admin-form input[type="url"],
-        .admin-form input[type="date"],
-        .admin-form select,
-        .admin-form textarea,
-        .admin-form input[type="file"] {
-          width: 100%;
-          padding: 12px 14px;
-          font-size: 15px;
-          border: 1.8px solid #ccc;
-          border-radius: 8px;
-          transition: border-color 0.3s ease;
-          box-sizing: border-box;
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            background: #fff;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
-        .admin-form input[type="text"]:focus,
-        .admin-form input[type="url"]:focus,
-        .admin-form input[type="date"]:focus,
-        .admin-form select:focus,
-        .admin-form textarea:focus,
-        .admin-form input[type="file"]:focus {
-          border-color: #0077cc;
-          outline: none;
-          box-shadow: 0 0 8px rgba(0,119,204,0.3);
+        .main-content h2 {
+            font-size: 28px;
+            color: #0077cc;
+            margin-bottom: 20px;
         }
 
-        .admin-form textarea {
-          resize: vertical;
-          min-height: 80px;
+        form {
+            max-width: 600px;
+            background: #fdfdfd;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
-        .admin-form button {
-          margin-top: 30px;
-          background-color: #0077cc;
-          color: #fff;
-          font-size: 18px;
-          font-weight: 700;
-          padding: 14px;
-          border: none;
-          border-radius: 10px;
-          cursor: pointer;
-          width: 100%;
-          transition: background-color 0.3s ease;
+        label {
+            font-weight: bold;
         }
 
-        .admin-form button:hover {
-          background-color: #005fa3;
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
         }
 
-        .admin-dashboard p a {
-          display: inline-block;
-          margin-top: 28px;
-          color: #0077cc;
-          text-decoration: none;
-          font-weight: 600;
-          transition: color 0.2s ease;
+        button {
+            padding: 14px;
+            background: #0077cc;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
         }
 
-        .admin-dashboard p a:hover {
-          color: #005fa3;
+        button:hover {
+            background-color: #005fa3;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <div class="admin-dashboard">
-        <h2>Add New Coupon</h2>
+<div class="sidebar">
+    <h2>Admin Menu</h2>
+    <a href="dashboard.php">🏠 Dashboard</a>
+    <a href="add-coupon.php">➕ Add Coupon</a>
+    <a href="add-store.php">🏬 Add Store</a>
+    <a href="add-category.php">📁 Add Category</a>
+    <a href="view-coupons.php">🎟️ View Coupons</a>
+    <a href="view-stores.php">🏪 View Stores</a>
+    <a href="view-categories.php">🗂️ View Categories</a>
+    <a href="view-users.php">👥 View Users</a>
+    <a href="logout.php">🚪 Logout</a>
+</div>
+<div class="main-content">
+    <h2>Add New Coupon</h2>
 
-        <?php if ($message): ?>
-            <p class="message-success"><strong><?php echo htmlspecialchars($message); ?></strong></p>
-        <?php endif; ?>
+    <?php if ($message): ?>
+        <div class="message <?php echo str_starts_with($message, '✅') ? 'success' : 'error'; ?>">
+            <?php echo $message; ?>
+        </div>
+    <?php endif; ?>
 
-        <form method="POST" enctype="multipart/form-data" class="admin-form">
-            <label>Coupon Title:</label>
-            <input type="text" name="title" required>
+    <form method="POST" enctype="multipart/form-data">
+        <label>Coupon Title:</label>
+        <input type="text" name="title" required>
 
-            <label>Description:</label>
-            <textarea name="description" rows="4"></textarea>
+        <label>Description:</label>
+        <textarea name="description" rows="4"></textarea>
 
-            <label>Coupon Code:</label>
-            <input type="text" name="code">
+        <label>Coupon Code:</label>
+        <input type="text" name="code">
 
-            <label>Affiliate Link:</label>
-            <input type="url" name="affiliate_link">
+        <label>Affiliate Link:</label>
+        <input type="url" name="affiliate_link">
 
-            <label>Expiry Date:</label>
-            <input type="date" name="expiry_date">
+        <label>Expiry Date:</label>
+        <input type="date" name="expiry_date">
 
-            <label>Store:</label>
-            <select name="store_id" required>
-                <option value="">-- Select Store --</option>
-                <?php while ($store = $storeResult->fetch_assoc()): ?>
-                    <option value="<?php echo $store['id']; ?>"><?php echo htmlspecialchars($store['name']); ?></option>
-                <?php endwhile; ?>
-            </select>
+        <label>Store:</label>
+        <select name="store_id" required>
+            <option value="">-- Select Store --</option>
+            <?php while ($store = $storeResult->fetch_assoc()): ?>
+                <option value="<?php echo $store['id']; ?>"><?php echo htmlspecialchars($store['name']); ?></option>
+            <?php endwhile; ?>
+        </select>
 
-            <label>Coupon Image:</label>
-            <input type="file" name="image" accept="image/*">
+        <label>Coupon Image:</label>
+        <input type="file" name="image" accept="image/*">
 
-            <button type="submit">➕ Add Coupon</button>
-        </form>
-
-        <p><a href="dashboard.php">← Back to Dashboard</a></p>
-    </div>
+        <button type="submit">➕ Add Coupon</button>
+    </form>
+</div>
 </body>
 </html>

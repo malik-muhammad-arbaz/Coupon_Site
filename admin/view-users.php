@@ -3,43 +3,43 @@ session_start();
 include('../includes/db.php');
 include('auth.php');
 
-if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']);
-    $conn->query("DELETE FROM stores WHERE id = $id");
-    header("Location: view-stores.php");
+// Approve admin
+if (isset($_GET['approve'])) {
+    $id = intval($_GET['approve']);
+    $conn->query("UPDATE admins SET is_approved = 1 WHERE id = $id");
+    header("Location: view-users.php");
     exit();
 }
 
-$search = isset($_GET['search']) ? trim($_GET['search']) : '';
-
-if ($search !== '') {
-    $stmt = $conn->prepare("SELECT * FROM stores WHERE name LIKE CONCAT('%', ?, '%') ORDER BY created_at DESC");
-    $stmt->bind_param("s", $search);
-    $stmt->execute();
-    $stores = $stmt->get_result();
-} else {
-    $stores = $conn->query("SELECT * FROM stores ORDER BY created_at DESC");
+// Delete admin
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']);
+    $conn->query("DELETE FROM admins WHERE id = $id");
+    header("Location: view-users.php");
+    exit();
 }
+
+// Fetch admins
+$users = $conn->query("SELECT * FROM admins ORDER BY id DESC");
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>View Stores</title>
+    <title>View Users</title>
     <link rel="stylesheet" href="../assets/style.css">
     <style>
         body {
             margin: 0;
-            padding: 0;
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(120deg, #f4f6f9, #dbe9f4);
+            background: #f4f6f9;
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
         .sidebar {
-            width: 240px;
+            width: 220px;
             background: #0077cc;
             padding: 30px 20px;
             display: flex;
@@ -50,10 +50,9 @@ if ($search !== '') {
         }
 
         .sidebar h2 {
-            font-size: 24px;
-            margin-bottom: 30px;
+            font-size: 22px;
+            margin-bottom: 20px;
             text-align: center;
-            color: #fff;
         }
 
         .sidebar a {
@@ -63,6 +62,7 @@ if ($search !== '') {
             border-radius: 6px;
             background: rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease-in-out;
+            font-weight: bold;
         }
 
         .sidebar a:hover {
@@ -80,74 +80,36 @@ if ($search !== '') {
         }
 
         .main-content h2 {
-            font-size: 32px;
+            font-size: 30px;
             margin-bottom: 20px;
             color: #0077cc;
             border-bottom: 2px solid #eee;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
         }
 
-        .search-box {
-            margin-bottom: 20px;
-        }
-
-        .search-box input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .search-box button {
-            padding: 10px 14px;
-            border: none;
-            background: #0077cc;
-            color: #fff;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .search-box button:hover {
-            background: #005fa3;
-        }
-
-        table.store-table {
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
             background: #fff;
             box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
             border-radius: 8px;
             overflow: hidden;
         }
 
-        table.store-table th,
-        table.store-table td {
+        th, td {
             padding: 12px 14px;
             border-bottom: 1px solid #eee;
             text-align: left;
         }
 
-        table.store-table th {
+        th {
             background-color: #f5f5f5;
             font-weight: 600;
             color: #333;
         }
 
-        table.store-table tr:hover {
+        tr:hover {
             background-color: #f0f8ff;
-        }
-
-        .store-logo {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 4px;
-            background-color: #fafafa;
         }
 
         .action-buttons a {
@@ -166,17 +128,12 @@ if ($search !== '') {
             background-color: #005fa3;
         }
 
-        .action-buttons a:last-child {
+        .action-buttons .delete {
             background-color: #e53935;
         }
 
-        .action-buttons a:last-child:hover {
+        .action-buttons .delete:hover {
             background-color: #c62828;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -195,45 +152,38 @@ if ($search !== '') {
 </div>
 
 <div class="main-content">
-    <h2>All Stores</h2>
+    <h2>All Admin Users</h2>
 
-    <form method="GET" class="search-box">
-        <input type="text" name="search" placeholder="Search by store name" value="<?php echo htmlspecialchars($search); ?>">
-        <button type="submit">🔍 Search</button>
-    </form>
-
-    <?php if ($stores->num_rows > 0): ?>
-        <table class="store-table">
+    <?php if ($users && $users->num_rows > 0): ?>
+        <table>
             <thead>
                 <tr>
-                    <th>Logo</th>
-                    <th>Name</th>
-                    <th>Website</th>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Approved</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($s = $stores->fetch_assoc()): ?>
+                <?php while ($user = $users->fetch_assoc()): ?>
                     <tr>
-                        <td>
-                            <?php if ($s['logo_url']): ?>
-                                <img src="../uploads/stores/<?php echo $s['logo_url']; ?>" alt="Logo" class="store-logo">
-                            <?php else: ?>
-                                No Logo
-                            <?php endif; ?>
-                        </td>
-                        <td><?php echo htmlspecialchars($s['name']); ?></td>
-                        <td><a href="<?php echo htmlspecialchars($s['website_url']); ?>" target="_blank"><?php echo htmlspecialchars($s['website_url']); ?></a></td>
+                        <td><?php echo $user['id']; ?></td>
+                        <td><?php echo htmlspecialchars($user['username']); ?></td>
+                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                        <td><?php echo $user['is_approved'] ? '✅' : '❌'; ?></td>
                         <td class="action-buttons">
-                            <a href="edit-store.php?id=<?php echo $s['id']; ?>">✏️ Edit</a>
-                            <a href="view-stores.php?delete=<?php echo $s['id']; ?>" onclick="return confirm('Are you sure you want to delete this store?')">🗑️ Delete</a>
+                            <?php if (!$user['is_approved']): ?>
+                                <a href="view-users.php?approve=<?php echo $user['id']; ?>">✅ Approve</a>
+                            <?php endif; ?>
+                            <a href="view-users.php?delete=<?php echo $user['id']; ?>" class="delete" onclick="return confirm('Are you sure you want to delete this user?')">🗑️ Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
     <?php else: ?>
-        <p>No stores found.</p>
+        <p>No users found.</p>
     <?php endif; ?>
 </div>
 </body>

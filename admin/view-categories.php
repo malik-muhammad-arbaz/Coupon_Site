@@ -6,28 +6,33 @@ include('auth.php');
 // Handle delete action
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = intval($_GET['delete']);
-    $conn->query("DELETE FROM coupons WHERE id = $id");
-    header("Location: view-coupons.php");
+    $conn->query("DELETE FROM categories WHERE id = $id");
+    header("Location: view-categories.php");
     exit();
 }
 
-// Handle search
-$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+// Handle edit action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'], $_POST['edit_name'])) {
+    $edit_id = intval($_POST['edit_id']);
+    $edit_name = $conn->real_escape_string(trim($_POST['edit_name']));
+    if (!empty($edit_name)) {
+        $conn->query("UPDATE categories SET name = '$edit_name' WHERE id = $edit_id");
+    }
+    header("Location: view-categories.php");
+    exit();
+}
 
-if ($search !== '') {
-    $stmt = $conn->prepare("SELECT c.*, s.name as store_name FROM coupons c LEFT JOIN stores s ON c.store_id = s.id WHERE s.name LIKE CONCAT('%', ?, '%') ORDER BY c.created_at DESC");
-    $stmt->bind_param("s", $search);
-    $stmt->execute();
-    $coupons = $stmt->get_result();
-} else {
-    $coupons = $conn->query("SELECT c.*, s.name as store_name FROM coupons c LEFT JOIN stores s ON c.store_id = s.id ORDER BY c.created_at DESC");
+// Fetch categories
+$categories = $conn->query("SELECT * FROM categories ORDER BY id DESC");
+if (!$categories) {
+    die("❌ Query Error (categories): " . $conn->error);
 }
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>View Coupons</title>
+    <title>View Categories</title>
     <link rel="stylesheet" href="../assets/style.css">
     <style>
         body {
@@ -89,32 +94,6 @@ if ($search !== '') {
             padding-bottom: 15px;
         }
 
-        .search-box {
-            margin-bottom: 20px;
-        }
-
-        .search-box input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .search-box button {
-            padding: 10px 14px;
-            border: none;
-            background: #0077cc;
-            color: #fff;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .search-box button:hover {
-            background: #005fa3;
-        }
-
         table.admin-table {
             width: 100%;
             border-collapse: collapse;
@@ -134,6 +113,29 @@ if ($search !== '') {
 
         table.admin-table tr:hover {
             background-color: #f9f9f9;
+        }
+
+        .edit-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-form input[type="text"] {
+            padding: 6px;
+            width: 150px;
+        }
+
+        .edit-form button {
+            padding: 6px 10px;
+            background: #0077cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .edit-form button:hover {
+            background: #005fa3;
         }
 
         @keyframes fadeIn {
@@ -158,41 +160,35 @@ if ($search !== '') {
 </div>
 
 <div class="main-content">
-    <h2>All Coupons</h2>
+    <h2>All Categories</h2>
 
-    <form method="GET" class="search-box">
-        <input type="text" name="search" placeholder="Search by store name" value="<?php echo htmlspecialchars($search); ?>">
-        <button type="submit">🔍 Search</button>
-    </form>
-
-    <?php if ($coupons->num_rows > 0): ?>
+    <?php if ($categories->num_rows > 0): ?>
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Store</th>
-                    <th>Code</th>
-                    <th>Expiry</th>
+                    <th>Name</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($c = $coupons->fetch_assoc()): ?>
+                <?php while ($cat = $categories->fetch_assoc()): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($c['title']); ?></td>
-                        <td><?php echo htmlspecialchars($c['store_name']); ?></td>
-                        <td><?php echo htmlspecialchars($c['code']); ?></td>
-                        <td><?php echo $c['expiry_date'] ? date('M d, Y', strtotime($c['expiry_date'])) : 'N/A'; ?></td>
                         <td>
-                            <a href="edit-coupon.php?id=<?php echo $c['id']; ?>">✏️ Edit</a> |
-                            <a href="view-coupons.php?delete=<?php echo $c['id']; ?>" onclick="return confirm('Delete this coupon?')">🗑️ Delete</a>
+                            <form method="POST" class="edit-form">
+                                <input type="hidden" name="edit_id" value="<?php echo $cat['id']; ?>">
+                                <input type="text" name="edit_name" value="<?php echo htmlspecialchars($cat['name']); ?>">
+                                <button type="submit">Save</button>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="view-categories.php?delete=<?php echo $cat['id']; ?>" onclick="return confirm('Are you sure you want to delete this category?');" style="color:red">🗑️ Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
     <?php else: ?>
-        <p>No coupons found for this store.</p>
+        <p>No categories found.</p>
     <?php endif; ?>
 </div>
 

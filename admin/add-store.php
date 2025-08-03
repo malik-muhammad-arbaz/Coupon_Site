@@ -50,58 +50,107 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <title>Add Store - Admin Panel</title>
   <link rel="stylesheet" href="../assets/style.css">
   <style>
-    .form-wrapper {
-      max-width: 600px;
-      margin: 60px auto;
-      background: #fff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #f4f6f9, #dbe9f4);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .form-wrapper h2 {
+    .sidebar {
+      width: 240px;
+      background: #0077cc;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      color: #fff;
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar h2 {
+      font-size: 24px;
+      margin-bottom: 30px;
       text-align: center;
-      margin-bottom: 24px;
-      color: #0077cc;
+      color: #fff;
     }
 
-    .form-wrapper label {
-      display: block;
-      font-weight: bold;
-      margin: 12px 0 5px;
-    }
-
-    .form-wrapper input[type="text"],
-    .form-wrapper input[type="url"],
-    .form-wrapper input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
+    .sidebar a {
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 15px;
       border-radius: 6px;
-      font-size: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease-in-out;
     }
 
-    .form-wrapper button {
+    .sidebar a:hover {
+      background: #fff;
+      color: #0077cc;
+      transform: scale(1.05);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      background: #fff;
+      overflow-y: auto;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .main-content h2 {
+      font-size: 28px;
+      color: #0077cc;
+      margin-bottom: 20px;
+    }
+
+    form {
+      max-width: 600px;
+      background: #fdfdfd;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="file"] {
       width: 100%;
       padding: 12px;
-      background: #0077cc;
-      color: #fff;
-      font-weight: bold;
-      border: none;
+      margin-top: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
       border-radius: 6px;
-      margin-top: 20px;
     }
 
-    .form-wrapper button:hover {
-      background: #005fa3;
+    button {
+      padding: 14px;
+      background: #0077cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #005fa3;
     }
 
     .message {
       padding: 12px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       border-radius: 6px;
       font-weight: bold;
-      text-align: center;
     }
 
     .message.success {
@@ -114,35 +163,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       color: #c62828;
     }
 
-    .form-wrapper a {
-      display: inline-block;
-      margin-top: 20px;
-      color: #0077cc;
-    }
-
-    body.dark .form-wrapper {
-      background: #2a2a2a;
-      color: #eee;
-    }
-
-    body.dark input {
-      background: #444;
-      color: #fff;
-      border-color: #555;
-    }
-
-    body.dark .form-wrapper button {
-      background: #0077cc;
-    }
-
-    body.dark .form-wrapper button:hover {
-      background: #005fa3;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
+  <div class="sidebar">
+    <h2>Admin Menu</h2>
+    <a href="dashboard.php">🏠 Dashboard</a>
+    <a href="add-coupon.php">➕ Add Coupon</a>
+    <a href="add-store.php">🏬 Add Store</a>
+    <a href="add-category.php">📁 Add Category</a>
+    <a href="view-coupons.php">🎟️ View Coupons</a>
+    <a href="view-stores.php">🏪 View Stores</a>
+    <a href="view-categories.php">🗂️ View Categories</a>
+    <a href="view-users.php">👥 View Users</a>
+    <a href="logout.php">🚪 Logout</a>
+  </div>
 
-  <div class="form-wrapper">
+  <div class="main-content">
     <h2>Add New Store</h2>
 
     <?php if ($message): ?>
@@ -163,9 +204,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
       <button type="submit">➕ Add Store</button>
     </form>
-
-    <a href="dashboard.php">← Back to Dashboard</a>
   </div>
-
 </body>
 </html>

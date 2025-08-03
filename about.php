@@ -1,10 +1,4 @@
-<?php
-session_start();
-include('../includes/db.php');
-include('auth.php'); // Remove if public page
-
-// You can fetch any dynamic content here if needed
-?>
+<?php include 'includes/db.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -53,15 +47,15 @@ include('auth.php'); // Remove if public page
 <body>
     <div class="container">
         <h1>About Us</h1>
-        <p>Welcome to SavingsUpscale, your trusted source for the best deals, coupons, and discounts online. Our mission is to help savvy shoppers save money effortlessly by providing a curated collection of verified coupons from thousands of popular stores.</p>
+        <p>Welcome to RatedCoupns, your trusted source for the best deals, coupons, and discounts online. Our mission is to help savvy shoppers save money effortlessly by providing a curated collection of verified coupons from thousands of popular stores.</p>
 
-        <p>Founded in 2023, we have grown to become one of the most reliable coupon platforms, committed to bringing you the latest and greatest offers every day. Whether you're shopping for electronics, fashion, groceries, or travel, SavingsUpscale is here to make your shopping experience smarter and more affordable.</p>
+        <p>Founded in 2023, we have grown to become one of the most reliable coupon platforms, committed to bringing you the latest and greatest offers every day. Whether you're shopping for electronics, fashion, groceries, or travel, RatedCoupons is here to make your shopping experience smarter and more affordable.</p>
 
         <p>Our team works tirelessly to find exclusive deals and update expired coupons so you never miss a chance to save. We value transparency, accuracy, and user satisfaction above all else.</p>
 
         <p>Thank you for choosing SavingsUpscale. Happy saving!</p>
 
-        <a href="dashboard.php" class="back-link">← Back to Dashboard</a>
+        <a href="index.php" class="back-link">← Back to Dashboard</a>
     </div>
 </body>
 </html>
